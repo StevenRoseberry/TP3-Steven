@@ -74,3 +74,6 @@ class GrapheModel(QObject):
         # Notif des vues
         self.grapheChanged.emit(self._pos )
 
+    def add_node(self, position):
+        # TODO
+

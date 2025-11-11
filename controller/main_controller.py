@@ -21,6 +21,8 @@ class MainController :
         self.__view.createButton.clicked.connect(self.generate_graph)
         self.__view.deleteButton.clicked.connect(self.delete_graph)
 
+        self.__canvas.addNode()
+
     def post_init(self):
         self.__model.grapheChanged.connect(self.__canvas.on_graph_changed)
         self.__model.grapheChanged.emit(self.__model.pos)

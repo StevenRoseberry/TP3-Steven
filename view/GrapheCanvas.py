@@ -28,8 +28,8 @@ class GraphCanvas(FigureCanvasQTAgg):
         self.__controller=controller
 
     def __convert_pos(self, event):
-        """ Cette methode permet de transformer les coordonnées d'un mouseEvenyt
-         (coordonnées QT) en coordonnées figure matplotlib """
+        """ Cette methode permet de transformer les coordonnées d'un mouseEvent
+         (coordonnées QT) en coordonnées figures matplotlib """
         # coordonnées de l’événement en pixels figure
         x_fig, y_fig = self.mouseEventCoords(event)
 
@@ -59,3 +59,9 @@ class GraphCanvas(FigureCanvasQTAgg):
     def on_graph_changed(self,position):
         self._pos = position
         self.draw_graphe()
+
+    def mousePressEvent(self, event):
+        print("clic clic")
+        print(self.__convert_pos(event))
+        self._pos = self.__convert_pos(event)
+
