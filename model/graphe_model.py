@@ -1,28 +1,20 @@
 import random
-import threading
-
 import networkx as nx
-import matplotlib.pyplot as plt
 from PyQt6.QtCore import pyqtSignal, QObject
 from networkx import Graph
 
 
 class GrapheModel(QObject):
-    #Le graphe 0 à afficher
-    _graphe:Graph = nx.Graph()
-    #_pos contient le layout, soit le mapping noeud -> position pour l'Affichage
-    _pos=None
+    _graphe: Graph = nx.Graph()
+    _pos = None
+    _selected_node = None
+    _dragging_node = None
 
-    # probabilité qu'une arête existe entre deux nœuds pour la generation
-    __proba=0.5
-    # Le nombre de noeuds par défaut pour la generation
-    __default_graphe_order =10
-    # le poids min d'une arete pour la generation
+    __proba = 0.5
+    __default_graphe_order = 10
     __poids_min = 1
-    # le poids max d'une arete pour la generation
     __poids_max = 10
 
-    # signal qui envoie le graphe complet
     grapheChanged = pyqtSignal(dict)
 
     def __init__(self):
@@ -38,7 +30,7 @@ class GrapheModel(QObject):
 
     @default_graphe_order.setter
     def default_graphe_order(self, value):
-        self.__default_graphe_order=value
+        self.__default_graphe_order = value
 
     @property
     def graphe(self):
@@ -48,32 +40,57 @@ class GrapheModel(QObject):
     def pos(self):
         return self._pos
 
-    def edge_weight(self,edge):
-        return  self._graphe[edge[0]][edge[1]]['weight']
+    @property
+    def selected_node(self):
+        return self._selected_node
+
+    @selected_node.setter
+    def selected_node(self, node):
+        self._selected_node = node
+
+    def edge_weight(self, edge):
+        return self._graphe[edge[0]][edge[1]]['weight']
 
     def generate_graph(self):
-        # Générer un graphe aléatoire non orienté avec une probabilité d'Arete donnée
         self._graphe = nx.gnp_random_graph(self.default_graphe_order, self.__proba, directed=False)
-
-        # Ajouter un poids aléatoire à chaque arête
         for u, v in self._graphe.edges():
             self._graphe[u][v]['weight'] = random.randint(self.__poids_min, self.__poids_max)
-
-        # stocke le nouveau layout
-        self._pos  = nx.spring_layout(self._graphe, seed=42)
-
-        # Notif des vues
-        self.grapheChanged.emit(self._pos )
+        self._pos = nx.spring_layout(self._graphe, seed=42)
+        self._selected_node = None
+        self.grapheChanged.emit(self._pos)
 
     def delete_graph(self):
-        # Effacer les references au graphe
         self._graphe = nx.empty_graph()
-        # stocke le nouveau layout
         self._pos = nx.spring_layout(self._graphe, seed=42)
-
-        # Notif des vues
-        self.grapheChanged.emit(self._pos )
+        self._selected_node = None
+        self.grapheChanged.emit(self._pos)
 
     def add_node(self, position):
-        # TODO
+        new_node_id = 0
+        while new_node_id in self._graphe.nodes():
+            new_node_id += 1
+        self._graphe.add_node(new_node_id)
+        self._pos[new_node_id] = position
+        self.grapheChanged.emit(self._pos)
 
+    def delete_node(self, node):
+        if node in self._graphe.nodes():
+            self._graphe.remove_node(node)
+            if node in self._pos:
+                del self._pos[node]
+            if self._selected_node == node:
+                self._selected_node = None
+            self.grapheChanged.emit(self._pos)
+
+    def move_node(self, node, position):
+        if node in self._graphe.nodes():
+            self._pos[node] = position
+            self.grapheChanged.emit(self._pos)
+
+    def add_edge(self, node1, node2, weight=1):
+        if node1 in self._graphe.nodes() and node2 in self._graphe.nodes():
+            if not self._graphe.has_edge(node1, node2):
+                self._graphe.add_edge(node1, node2, weight=weight)
+                self.grapheChanged.emit(self._pos)
+                return True
+        return False
