@@ -15,6 +15,7 @@ class GraphCanvas(FigureCanvasQTAgg):
     _dragging_node = None
     _drag_start_pos = None
     _drag_threshold = 5
+    _selected_edge = None
 
     def __init__(self):
         # Création de la figure matplotlib
@@ -24,7 +25,7 @@ class GraphCanvas(FigureCanvasQTAgg):
         if TYPE_CHECKING:
             self.__controller: MainController | None = None
 
-        #Permet de faire fonctionner l'ecoute des touches dans un canvas
+        # Permet de faire fonctionner l'ecoute des touches dans un canvas
         self.setFocus()
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
@@ -51,12 +52,64 @@ class GraphCanvas(FigureCanvasQTAgg):
                 click_pos = np.array(pos)
                 distance = np.linalg.norm(node_pos - click_pos)
 
-                # Si clic assez proche d’un noeud, la sélection se fait
+                # Si clic assez proche d'un noeud, la sélection se fait
                 if distance < min_distance and distance < radius:
                     min_distance = distance
                     closest_node = node
 
         return closest_node
+
+    # Calcul de la distance d'un point à un segment (géométrie vectorielle)
+    def _distance_point_to_segment(self, point, seg_start, seg_end):
+        #Calcule la distance d'un point à un segment.
+        #Utilise la projection orthogonale du point sur la droite du segment.
+        # Fait en partie par Claude (AI) !!! (je suis vraiment nulos en math hahaha)
+
+        point = np.array(point)
+        seg_start = np.array(seg_start)
+        seg_end = np.array(seg_end)
+
+        # Vecteur du segment
+        seg_vec = seg_end - seg_start
+        seg_length_sq = np.dot(seg_vec, seg_vec)
+
+        # Si le segment est réduit à un point
+        if seg_length_sq == 0:
+            return np.linalg.norm(point - seg_start)
+
+        # Paramètre t de la projection du point sur la droite du segment
+        # t = 0 correspond à seg_start, t = 1 correspond à seg_end
+        t = max(0, min(1, np.dot(point - seg_start, seg_vec) / seg_length_sq))
+
+        # Point projeté sur le segment
+        projection = seg_start + t * seg_vec
+
+        # Distance du point à sa projection
+        return np.linalg.norm(point - projection)
+
+    # Cherche une arête proche du clic
+    def _find_edge_at_position(self, pos, radius=0.05):
+        graphe = self.__controller.graphe()
+        if graphe is None or len(graphe.edges()) == 0:
+            return None
+
+        min_distance = float('inf')
+        closest_edge = None
+
+        for edge in graphe.edges():
+            node1, node2 = edge
+            if node1 in self._pos and node2 in self._pos:
+                seg_start = self._pos[node1]
+                seg_end = self._pos[node2]
+
+                distance = self._distance_point_to_segment(pos, seg_start, seg_end)
+
+                # Si clic assez proche d'une arête
+                if distance < min_distance and distance < radius:
+                    min_distance = distance
+                    closest_edge = edge
+
+        return closest_edge
 
     # Redessine complètement le graphe
     def draw_graphe(self):
@@ -78,15 +131,26 @@ class GraphCanvas(FigureCanvasQTAgg):
                 for node in graphe.nodes()
             ]
 
-            # Dessin des noeuds, labels, arêtes et poids
+            # Dessin des noeuds, labels, arêtes
             nx.draw_networkx_nodes(graphe, self._pos, node_color=node_colors, node_size=800, ax=self.ax)
             nx.draw_networkx_labels(graphe, self._pos, font_size=10, ax=self.ax)
-            nx.draw_networkx_edges(graphe, self._pos, ax=self.ax)
 
+            # Colorier les arêtes : l'arête sélectionnée en rouge, les autres en noir
+            edge_colors = []
+            for edge in graphe.edges():
+                if self._selected_edge is not None and (
+                        edge == self._selected_edge or edge == (self._selected_edge[1], self._selected_edge[0])):
+                    edge_colors.append('red')
+                else:
+                    edge_colors.append('black')
+
+            nx.draw_networkx_edges(graphe, self._pos, ax=self.ax, edge_color=edge_colors, width=2)
+
+            # Afficher les poids des arêtes
             labels = nx.get_edge_attributes(graphe, "weight")
             nx.draw_networkx_edge_labels(graphe, self._pos, edge_labels=labels, ax=self.ax)
 
-            # Zoom fixe (trouvé avec Claude, sinon j'aurait jamais fix le bug)
+            # Zoom fixe
             self.ax.set_xlim(-1.5, 1.5)
             self.ax.set_ylim(-1.5, 1.5)
 
@@ -103,21 +167,34 @@ class GraphCanvas(FigureCanvasQTAgg):
         pos = self._convert_pos(event)
 
         if event.button() == Qt.MouseButton.LeftButton:
-            # Essaye de cliquer un noeud
+            # Essaye d'abord de cliquer un noeud
             clicked_node = self._find_node_at_position(pos)
 
             if clicked_node is not None:
                 # Sélection du noeud
                 self.__controller._model.selected_node = clicked_node
+                self._selected_edge = None
                 self._dragging_node = clicked_node
                 self._drag_start_pos = pos
                 self.draw_graphe()
             else:
-                # Sinon on crée un noeud
-                self.__controller._model.add_node(pos)
+                # Essaye de cliquer une arête
+                clicked_edge = self._find_edge_at_position(pos)
+                if clicked_edge is not None:
+                    self._selected_edge = clicked_edge
+                    self.__controller._model.selected_node = None
+                    self._dragging_node = None
+                    self.__controller.update_edge_ui()
+                    self.draw_graphe()
+                else:
+                    # Sinon on crée un noeud
+                    self._selected_edge = None
+                    self.__controller._model.selected_node = None
+                    self.__controller.update_edge_ui()
+                    self.__controller._model.add_node(pos)
 
         elif event.button() == Qt.MouseButton.RightButton:
-            # Début d’un drag pour créer une arête
+            # Début d'un drag pour créer une arête
             clicked_node = self._find_node_at_position(pos)
             if clicked_node is not None:
                 self._dragging_node = clicked_node
@@ -145,22 +222,25 @@ class GraphCanvas(FigureCanvasQTAgg):
 
         pos = self._convert_pos(event)
 
-        # Clic droit relâché = tentative de création d’arête
+        # Clic droit relâché = tentative de création d'arête
         if event.button() == Qt.MouseButton.RightButton:
             target_node = self._find_node_at_position(pos)
 
             if target_node is not None and target_node != self._dragging_node:
-                # Ajout d’une arête (poids par défaut = 1)
+                # Ajout d'une arête (poids par défaut = 1)
                 self.__controller._model.add_edge(self._dragging_node, target_node, weight=1)
 
             # Reset drag
             self._dragging_node = None
             self._drag_start_pos = None
 
-    # Touche Delete = supprimer noeud sélectionné
+    # Touche Delete = supprimer noeud sélectionné ou arête sélectionnée
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key.Key_Delete:
-            model = self.__controller._model
+        model = self.__controller._model
 
-            if model.selected_node is not None:
+        if event.key() == Qt.Key.Key_Delete:
+            if self._selected_edge is not None:
+                model.delete_edge(self._selected_edge)
+                self._selected_edge = None
+            elif model.selected_node is not None:
                 model.delete_node(model.selected_node)

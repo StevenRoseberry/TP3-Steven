@@ -9,6 +9,7 @@ class GrapheModel(QObject):
     _pos = None
     _selected_node = None
     _dragging_node = None
+    _selected_edge = None
 
     __proba = 0.5
     __default_graphe_order = 10
@@ -48,6 +49,14 @@ class GrapheModel(QObject):
     def selected_node(self, node):
         self._selected_node = node
 
+    @property
+    def selected_edge(self):
+        return self._selected_edge
+
+    @selected_edge.setter
+    def selected_edge(self, edge):
+        self._selected_edge = edge
+
     def edge_weight(self, edge):
         return self._graphe[edge[0]][edge[1]]['weight']
 
@@ -57,12 +66,14 @@ class GrapheModel(QObject):
             self._graphe[u][v]['weight'] = random.randint(self.__poids_min, self.__poids_max)
         self._pos = nx.spring_layout(self._graphe, seed=42)
         self._selected_node = None
+        self._selected_edge = None
         self.grapheChanged.emit(self._pos)
 
     def delete_graph(self):
         self._graphe = nx.empty_graph()
         self._pos = nx.spring_layout(self._graphe, seed=42)
         self._selected_node = None
+        self._selected_edge = None
         self.grapheChanged.emit(self._pos)
 
     def add_node(self, position):
@@ -82,6 +93,14 @@ class GrapheModel(QObject):
                 self._selected_node = None
             self.grapheChanged.emit(self._pos)
 
+    def delete_edge(self, edge):
+        node1, node2 = edge
+        if self._graphe.has_edge(node1, node2):
+            self._graphe.remove_edge(node1, node2)
+            if self._selected_edge == edge or self._selected_edge == (node2, node1):
+                self._selected_edge = None
+            self.grapheChanged.emit(self._pos)
+
     def move_node(self, node, position):
         if node in self._graphe.nodes():
             self._pos[node] = position
@@ -94,3 +113,24 @@ class GrapheModel(QObject):
                 self.grapheChanged.emit(self._pos)
                 return True
         return False
+
+    def set_edge_weight(self, edge, weight):
+        node1, node2 = edge
+        # Vérifier les deux orientations possibles
+        if self._graphe.has_edge(node1, node2):
+            self._graphe[node1][node2]['weight'] = weight
+            self.grapheChanged.emit(self._pos)
+            return True
+        elif self._graphe.has_edge(node2, node1):
+            self._graphe[node2][node1]['weight'] = weight
+            self.grapheChanged.emit(self._pos)
+            return True
+        return False
+
+    def get_edge_weight(self, edge):
+        node1, node2 = edge
+        if self._graphe.has_edge(node1, node2):
+            return self._graphe[node1][node2]['weight']
+        elif self._graphe.has_edge(node2, node1):
+            return self._graphe[node2][node1]['weight']
+        return None
