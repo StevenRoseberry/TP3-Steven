@@ -161,6 +161,8 @@ class GraphCanvas(FigureCanvasQTAgg):
     def on_graph_changed(self, position):
         self._pos = position
         self.draw_graphe()
+        # update le UI à chaque changement de graph (bugfix pour le stylesheet)
+        self.__controller.update_edge_ui(self._selected_edge)
 
     # Gestion clic souris
     def mousePressEvent(self, event):

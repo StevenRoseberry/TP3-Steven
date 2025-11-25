@@ -24,27 +24,6 @@ class MainWindow(QMainWindow):
         loadUi("view/ui/main_window.ui", self)
         self.resize(1000, 800)
 
-        # Créer le GroupBox pour l'arête
-        self.edgeGroupBox = QGroupBox("Gestion de l'arête")
-        edge_layout = QHBoxLayout()
-
-        self.edgeLabel = QLabel("Arête sélectionnée : Aucune")
-        self.weightLabel = QLabel("Poids :")
-        self.weightSpinBox = QSpinBox()
-        self.weightSpinBox.setMinimum(1)
-        self.weightSpinBox.setMaximum(100)
-
-        edge_layout.addWidget(self.edgeLabel)
-        edge_layout.addStretch()
-        edge_layout.addWidget(self.weightLabel)
-        edge_layout.addWidget(self.weightSpinBox)
-
-        self.edgeGroupBox.setLayout(edge_layout)
-        self.edgeGroupBox.setVisible(False)
-
-        # Ajouter le GroupBox au layout principal
-        self.centralwidget.layout().addWidget(self.edgeGroupBox)
-
         # self.draw_graphe()
         if TYPE_CHECKING:
             self.__controller: MainController | None = None

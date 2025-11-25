@@ -37,23 +37,23 @@ class MainController:
         edge = selected_edge if selected_edge is not None else self.__canvas._selected_edge
 
         if edge is None:
+            self.__view.edgeLabel.setStyleSheet("color: #999; font-style: italic; font-size: 14px;")
             self.__view.edgeLabel.setText("Aucune sélection")
-            self.__view.edgeLabel.setStyleSheet("color: #666; font-style: italic;")
             self.__view.weightSpinBox.setEnabled(False)
             self.__view.weightSpinBox.blockSignals(True)
             self.__view.weightSpinBox.setValue(1)
             self.__view.weightSpinBox.blockSignals(False)
         else:
             weight = self.__model.get_edge_weight(edge)
-            self.__view.edgeLabel.setText(f"{edge[0]} - {edge[1]}")
-            self.__view.edgeLabel.setStyleSheet("color: black; font-weight: bold;")
+            self.__view.edgeLabel.setText(f"{edge[0]} ↔ {edge[1]}")
+            self.__view.edgeLabel.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
             self.__view.weightSpinBox.setEnabled(True)
             self.__view.weightSpinBox.blockSignals(True)
             self.__view.weightSpinBox.setValue(weight if weight else 1)
             self.__view.weightSpinBox.blockSignals(False)
 
     def apply_edge_weight(self):
-        """Applique le nouveau poids à l'arête sélectionnée"""
+        #Applique le nouveau poids à l'arête sélectionnée
         if self.__canvas._selected_edge is None:
             return
 
