@@ -171,26 +171,24 @@ class GraphCanvas(FigureCanvasQTAgg):
             clicked_node = self._find_node_at_position(pos)
 
             if clicked_node is not None:
-                # Sélection du noeud
                 self.__controller._model.selected_node = clicked_node
                 self._selected_edge = None
                 self._dragging_node = clicked_node
                 self._drag_start_pos = pos
+                self.__controller.update_edge_ui(None)
                 self.draw_graphe()
             else:
-                # Essaye de cliquer une arête
                 clicked_edge = self._find_edge_at_position(pos)
                 if clicked_edge is not None:
                     self._selected_edge = clicked_edge
                     self.__controller._model.selected_node = None
                     self._dragging_node = None
-                    self.__controller.update_edge_ui()
                     self.draw_graphe()
+                    self.__controller.update_edge_ui(clicked_edge)
                 else:
-                    # Sinon on crée un noeud
                     self._selected_edge = None
                     self.__controller._model.selected_node = None
-                    self.__controller.update_edge_ui()
+                    self.__controller.update_edge_ui(None)
                     self.__controller._model.add_node(pos)
 
         elif event.button() == Qt.MouseButton.RightButton:
@@ -242,5 +240,6 @@ class GraphCanvas(FigureCanvasQTAgg):
             if self._selected_edge is not None:
                 model.delete_edge(self._selected_edge)
                 self._selected_edge = None
+                self.__controller.update_edge_ui(None)
             elif model.selected_node is not None:
                 model.delete_node(model.selected_node)
