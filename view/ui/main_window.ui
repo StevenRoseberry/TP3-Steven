@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1200</width>
+    <width>1400</width>
     <height>900</height>
    </rect>
   </property>
@@ -30,40 +30,63 @@
     <property name="bottomMargin">
      <number>20</number>
     </property>
-
-    <!-- Zone du graphe -->
     <item>
-     <layout class="QVBoxLayout" name="grapheLayout">
-      <property name="spacing">
-       <number>0</number>
+     <widget class="QFrame" name="graphFrame">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
       </property>
-     </layout>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="minimumHeight">
+       <number>400</number>
+      </property>
+      <layout class="QVBoxLayout" name="grapheLayout">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+      </layout>
+     </widget>
     </item>
-
-    <!-- Panneau de contrôle principal -->
     <item>
      <widget class="QGroupBox" name="controlGroupBox">
       <property name="title">
-       <string>Contrôles du Graphe</string>
+       <string>Contrôles</string>
       </property>
-      <property name="minimumHeight">
-       <number>120</number>
+      <property name="maximumHeight">
+       <number>200</number>
       </property>
       <layout class="QVBoxLayout" name="controlLayout">
        <property name="spacing">
-        <number>10</number>
+        <number>12</number>
        </property>
-
-       <!-- Ligne 1: Génération du graphe -->
        <item>
-        <layout class="QHBoxLayout" name="generationLayout">
+        <layout class="QHBoxLayout" name="line1Layout">
+         <property name="spacing">
+          <number>20</number>
+         </property>
          <item>
-          <widget class="QLabel" name="generationLabel">
+          <widget class="QLabel" name="graphLabel">
            <property name="text">
             <string>Graphe :</string>
            </property>
            <property name="minimumWidth">
-            <number>100</number>
+            <number>60</number>
+           </property>
+           <property name="styleSheet">
+            <string>font-weight: 600;</string>
            </property>
           </widget>
          </item>
@@ -75,6 +98,9 @@
            <property name="minimumWidth">
             <number>100</number>
            </property>
+           <property name="minimumHeight">
+            <number>35</number>
+           </property>
           </widget>
          </item>
          <item>
@@ -85,71 +111,55 @@
            <property name="minimumWidth">
             <number>100</number>
            </property>
+           <property name="minimumHeight">
+            <number>35</number>
+           </property>
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_1">
+          <widget class="Line" name="separator1">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Vertical</enum>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
+          </widget>
          </item>
-        </layout>
-       </item>
-
-       <!-- Ligne 2: Gestion de l'arête -->
-       <item>
-        <layout class="QHBoxLayout" name="edgeLayout">
          <item>
           <widget class="QLabel" name="edgeTitleLabel">
            <property name="text">
             <string>Arête :</string>
            </property>
-           <property name="minimumWidth">
-            <number>100</number>
+           <property name="styleSheet">
+            <string>font-weight: 600;</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QLabel" name="edgeLabel">
            <property name="text">
-            <string>Aucune sélection</string>
+            <string>Aucune</string>
            </property>
            <property name="minimumWidth">
-            <number>150</number>
+            <number>80</number>
            </property>
           </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
          </item>
          <item>
           <widget class="QLabel" name="weightLabel">
            <property name="text">
             <string>Poids :</string>
            </property>
+           <property name="styleSheet">
+            <string>font-weight: 600;</string>
+           </property>
           </widget>
          </item>
          <item>
           <widget class="QSpinBox" name="weightSpinBox">
            <property name="minimumWidth">
-            <number>80</number>
+            <number>70</number>
+           </property>
+           <property name="minimumHeight">
+            <number>30</number>
            </property>
            <property name="minimum">
             <number>1</number>
@@ -162,48 +172,8 @@
            </property>
           </widget>
          </item>
-        </layout>
-       </item>
-
-      </layout>
-     </widget>
-    </item>
-
-    <!-- Panneau Plus Court Chemin -->
-    <item>
-     <widget class="QGroupBox" name="pathGroupBox">
-      <property name="title">
-       <string>Plus Court Chemin</string>
-      </property>
-      <layout class="QVBoxLayout" name="pathLayout">
-       <property name="spacing">
-        <number>10</number>
-       </property>
-
-       <item>
-        <layout class="QHBoxLayout" name="pathControlLayout">
          <item>
-          <widget class="QPushButton" name="findPathButton">
-           <property name="text">
-            <string>Trouver chemin</string>
-           </property>
-           <property name="minimumWidth">
-            <number>150</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="resetPathButton">
-           <property name="text">
-            <string>Réinitialiser</string>
-           </property>
-           <property name="minimumWidth">
-            <number>120</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="pathSpacer">
+          <spacer name="spacer1">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -217,146 +187,223 @@
          </item>
         </layout>
        </item>
-
        <item>
-        <widget class="QLabel" name="pathStatusLabel">
-         <property name="text">
-          <string></string>
+        <layout class="QHBoxLayout" name="line2Layout">
+         <property name="spacing">
+          <number>15</number>
          </property>
-         <property name="minimumHeight">
-          <number>25</number>
-         </property>
-        </widget>
+         <item>
+          <widget class="QLabel" name="pathLabel">
+           <property name="text">
+            <string>Plus court chemin :</string>
+           </property>
+           <property name="minimumWidth">
+            <number>140</number>
+           </property>
+           <property name="styleSheet">
+            <string>font-weight: 600;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="findPathButton">
+           <property name="text">
+            <string>Trouver chemin</string>
+           </property>
+           <property name="minimumWidth">
+            <number>140</number>
+           </property>
+           <property name="minimumHeight">
+            <number>35</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="resetPathButton">
+           <property name="text">
+            <string>Réinitialiser</string>
+           </property>
+           <property name="minimumWidth">
+            <number>120</number>
+           </property>
+           <property name="minimumHeight">
+            <number>35</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="pathStatusLabel">
+           <property name="text">
+            <string></string>
+           </property>
+           <property name="minimumHeight">
+            <number>25</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QProgressBar" name="pathProgressBar">
+           <property name="visible">
+            <bool>false</bool>
+           </property>
+           <property name="maximumHeight">
+            <number>20</number>
+           </property>
+           <property name="maximumWidth">
+            <number>200</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="spacer2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
-
        <item>
-        <widget class="QProgressBar" name="pathProgressBar">
-         <property name="visible">
-          <bool>false</bool>
+        <layout class="QHBoxLayout" name="line3Layout">
+         <property name="spacing">
+          <number>15</number>
          </property>
-         <property name="maximumHeight">
+         <item>
+          <widget class="QLabel" name="traversalLabel">
+           <property name="text">
+            <string>Parcours (touche P) :</string>
+           </property>
+           <property name="minimumWidth">
+            <number>140</number>
+           </property>
+           <property name="styleSheet">
+            <string>font-weight: 600;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="traversalStatusLabel">
+           <property name="text">
+            <string></string>
+           </property>
+           <property name="minimumHeight">
+            <number>25</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QProgressBar" name="traversalProgressBar">
+           <property name="visible">
+            <bool>false</bool>
+           </property>
+           <property name="maximumHeight">
+            <number>20</number>
+           </property>
+           <property name="maximumWidth">
+            <number>200</number>
+           </property>
+           <property name="value">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="spacer3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="line4Layout">
+         <property name="spacing">
           <number>20</number>
          </property>
-        </widget>
+         <item>
+          <widget class="QLabel" name="guideLabel">
+           <property name="text">
+            <string>Guide :</string>
+           </property>
+           <property name="minimumWidth">
+            <number>50</number>
+           </property>
+           <property name="styleSheet">
+            <string>font-weight: 600;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="guide1">
+           <property name="text">
+            <string>Clic gauche: Créer/Sélectionner/Déplacer</string>
+           </property>
+           <property name="styleSheet">
+            <string>font-size: 9pt; color: #666;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="guide2">
+           <property name="text">
+            <string>Clic droit: Créer arête</string>
+           </property>
+           <property name="styleSheet">
+            <string>font-size: 9pt; color: #666;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="guide3">
+           <property name="text">
+            <string>Delete: Supprimer</string>
+           </property>
+           <property name="styleSheet">
+            <string>font-size: 9pt; color: #666;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="guide4">
+           <property name="text">
+            <string>Couleurs: Départ (vert) | Arrivée (rouge) | Visité (violet) | Sélectionné (orange)</string>
+           </property>
+           <property name="styleSheet">
+            <string>font-size: 9pt; color: #666;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="spacer4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
-
       </layout>
      </widget>
     </item>
-
-    <!-- Panneau Parcours -->
-    <item>
-     <widget class="QGroupBox" name="traversalGroupBox">
-      <property name="title">
-       <string>Parcours des Sommets</string>
-      </property>
-      <layout class="QVBoxLayout" name="traversalLayout">
-       <property name="spacing">
-        <number>10</number>
-       </property>
-
-       <item>
-        <widget class="QLabel" name="traversalInfoLabel">
-         <property name="text">
-          <string>Appuyez sur 'P' pour lancer le parcours</string>
-         </property>
-         <property name="styleSheet">
-          <string>color: #666; font-style: italic;</string>
-         </property>
-        </widget>
-       </item>
-
-       <item>
-        <widget class="QLabel" name="traversalStatusLabel">
-         <property name="text">
-          <string></string>
-         </property>
-         <property name="minimumHeight">
-          <number>25</number>
-         </property>
-        </widget>
-       </item>
-
-       <item>
-        <widget class="QProgressBar" name="traversalProgressBar">
-         <property name="visible">
-          <bool>false</bool>
-         </property>
-         <property name="maximumHeight">
-          <number>20</number>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
-
-      </layout>
-     </widget>
-    </item>
-
-    <!-- Légende des contrôles -->
-    <item>
-     <widget class="QGroupBox" name="legendGroupBox">
-      <property name="title">
-       <string>💡 Guide des Contrôles</string>
-      </property>
-      <property name="maximumHeight">
-       <number>120</number>
-      </property>
-      <layout class="QVBoxLayout" name="legendLayout">
-       <property name="spacing">
-        <number>5</number>
-       </property>
-
-       <item>
-        <widget class="QLabel" name="legend1">
-         <property name="text">
-          <string>🖱️ Clic gauche sur vide : Créer un sommet  |  Clic gauche sur sommet : Sélectionner/Déplacer</string>
-         </property>
-         <property name="styleSheet">
-          <string>font-size: 11px;</string>
-         </property>
-        </widget>
-       </item>
-
-       <item>
-        <widget class="QLabel" name="legend2">
-         <property name="text">
-          <string>🖱️ Clic droit : Glisser d'un sommet à un autre pour créer une arête</string>
-         </property>
-         <property name="styleSheet">
-          <string>font-size: 11px;</string>
-         </property>
-        </widget>
-       </item>
-
-       <item>
-        <widget class="QLabel" name="legend3">
-         <property name="text">
-          <string>⌨️ Delete : Supprimer le sommet/arête sélectionné  |  P : Lancer le parcours des sommets</string>
-         </property>
-         <property name="styleSheet">
-          <string>font-size: 11px;</string>
-         </property>
-        </widget>
-       </item>
-
-       <item>
-        <widget class="QLabel" name="legend4">
-         <property name="text">
-          <string>🎨 Couleurs : 🟢 Départ  🔴 Arrivée  🟣 Visité  🟠 Sélectionné  🟦 Normal</string>
-         </property>
-         <property name="styleSheet">
-          <string>font-size: 11px;</string>
-         </property>
-        </widget>
-       </item>
-
-      </layout>
-     </widget>
-    </item>
-
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -364,8 +411,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1200</width>
-     <height>24</height>
+     <width>1400</width>
+     <height>30</height>
     </rect>
    </property>
   </widget>
