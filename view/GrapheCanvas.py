@@ -61,9 +61,8 @@ class GraphCanvas(FigureCanvasQTAgg):
 
     # Calcul de la distance d'un point à un segment (géométrie vectorielle)
     def _distance_point_to_segment(self, point, seg_start, seg_end):
-        #Calcule la distance d'un point à un segment.
-        #Utilise la projection orthogonale du point sur la droite du segment.
-        # Fait en partie par Claude (AI) !!! (je suis vraiment nulos en math hahaha)
+        # Calcule la distance d'un point à un segment.
+        # Utilise la projection orthogonale du point sur la droite du segment.
 
         point = np.array(point)
         seg_start = np.array(seg_start)
@@ -117,34 +116,61 @@ class GraphCanvas(FigureCanvasQTAgg):
         self.__draw_graphe()
         self.draw()
 
-    # Dessin "privé" du graphe (appelé juste par draw_graphe)
+    # Dessin "privé" du graphe
     def __draw_graphe(self):
         if self.__controller.graphe() is None:
             return
 
         try:
             graphe = self.__controller.graphe()
+            model = self.__controller._model
 
-            # Colorer le noeud sélectionné
-            node_colors = [
-                'red' if node == self.__controller._model.selected_node else 'skyblue'
-                for node in graphe.nodes()
-            ]
+            # Préparer les couleurs des nœuds
+            node_colors = []
+            for node in graphe.nodes():
+                if node == model.start_node:
+                    node_colors.append('#4CAF50')  # Vert pour départ
+                elif node == model.end_node:
+                    node_colors.append('#F44336')  # Rouge pour arrivée
+                elif node in model.visited_nodes:
+                    node_colors.append('#9C27B0')  # Violet pour visités (parcours)
+                elif node == model.selected_node:
+                    node_colors.append('#FF9800')  # Orange pour sélectionné
+                else:
+                    node_colors.append('skyblue')  # Bleu par défaut
 
-            # Dessin des noeuds, labels, arêtes
-            nx.draw_networkx_nodes(graphe, self._pos, node_color=node_colors, node_size=800, ax=self.ax)
+            # Dessin des noeuds et labels
+            nx.draw_networkx_nodes(graphe, self._pos, node_color=node_colors,
+                                   node_size=800, ax=self.ax)
             nx.draw_networkx_labels(graphe, self._pos, font_size=10, ax=self.ax)
 
-            # Colorier les arêtes : l'arête sélectionnée en rouge, les autres en noir
+            # Préparer les couleurs et largeurs des arêtes
             edge_colors = []
+            edge_widths = []
+
+            # Créer une liste d'arêtes du plus court chemin pour comparaison
+            path_edges = []
+            if len(model.shortest_path) > 1:
+                for i in range(len(model.shortest_path) - 1):
+                    path_edges.append((model.shortest_path[i], model.shortest_path[i + 1]))
+                    path_edges.append((model.shortest_path[i + 1], model.shortest_path[i]))  # Les deux sens
+
             for edge in graphe.edges():
-                if self._selected_edge is not None and (
+                # Arête fait partie du plus court chemin
+                if edge in path_edges:
+                    edge_colors.append('#4CAF50')  # Vert pour le chemin
+                    edge_widths.append(4)
+                # Arête sélectionnée
+                elif self._selected_edge is not None and (
                         edge == self._selected_edge or edge == (self._selected_edge[1], self._selected_edge[0])):
-                    edge_colors.append('red')
+                    edge_colors.append('#F44336')  # Rouge pour sélection
+                    edge_widths.append(3)
                 else:
                     edge_colors.append('black')
+                    edge_widths.append(2)
 
-            nx.draw_networkx_edges(graphe, self._pos, ax=self.ax, edge_color=edge_colors, width=2)
+            nx.draw_networkx_edges(graphe, self._pos, ax=self.ax,
+                                   edge_color=edge_colors, width=edge_widths)
 
             # Afficher les poids des arêtes
             labels = nx.get_edge_attributes(graphe, "weight")
@@ -161,8 +187,6 @@ class GraphCanvas(FigureCanvasQTAgg):
     def on_graph_changed(self, position):
         self._pos = position
         self.draw_graphe()
-        # update le UI à chaque changement de graph (bugfix pour le stylesheet)
-        self.__controller.update_edge_ui(self._selected_edge)
 
     # Gestion clic souris
     def mousePressEvent(self, event):
@@ -173,12 +197,16 @@ class GraphCanvas(FigureCanvasQTAgg):
             clicked_node = self._find_node_at_position(pos)
 
             if clicked_node is not None:
-                self.__controller._model.selected_node = clicked_node
-                self._selected_edge = None
-                self._dragging_node = clicked_node
-                self._drag_start_pos = pos
-                self.__controller.update_edge_ui(None)
-                self.draw_graphe()
+                # Si en mode sélection de chemin, gérer différemment
+                if self.__controller.path_mode:
+                    self.__controller.select_path_node(clicked_node)
+                else:
+                    self.__controller._model.selected_node = clicked_node
+                    self._selected_edge = None
+                    self._dragging_node = clicked_node
+                    self._drag_start_pos = pos
+                    self.__controller.update_edge_ui(None)
+                    self.draw_graphe()
             else:
                 clicked_edge = self._find_edge_at_position(pos)
                 if clicked_edge is not None:
@@ -191,7 +219,9 @@ class GraphCanvas(FigureCanvasQTAgg):
                     self._selected_edge = None
                     self.__controller._model.selected_node = None
                     self.__controller.update_edge_ui(None)
-                    self.__controller._model.add_node(pos)
+                    # Ne pas ajouter de nœud en mode chemin
+                    if not self.__controller.path_mode:
+                        self.__controller._model.add_node(pos)
 
         elif event.button() == Qt.MouseButton.RightButton:
             # Début d'un drag pour créer une arête
@@ -234,7 +264,7 @@ class GraphCanvas(FigureCanvasQTAgg):
             self._dragging_node = None
             self._drag_start_pos = None
 
-    # Touche Delete = supprimer noeud sélectionné ou arête sélectionnée
+    # Gestion des touches clavier
     def keyPressEvent(self, event):
         model = self.__controller._model
 
@@ -245,3 +275,7 @@ class GraphCanvas(FigureCanvasQTAgg):
                 self.__controller.update_edge_ui(None)
             elif model.selected_node is not None:
                 model.delete_node(model.selected_node)
+
+        elif event.key() == Qt.Key.Key_P:
+            # Lancer le parcours avec la touche P
+            self.__controller.start_traversal()

@@ -10,6 +10,10 @@ class GrapheModel(QObject):
     _selected_node = None
     _dragging_node = None
     _selected_edge = None
+    _start_node = None  # Sommet de départ pour plus court chemin
+    _end_node = None  # Sommet d'arrivée pour plus court chemin
+    _shortest_path = []  # Stocker le plus court chemin
+    _visited_nodes = []  # Stocker les nœuds visités pendant le parcours
 
     __proba = 0.5
     __default_graphe_order = 10
@@ -17,6 +21,9 @@ class GrapheModel(QObject):
     __poids_max = 10
 
     grapheChanged = pyqtSignal(dict)
+    pathFound = pyqtSignal(list)  # Signal quand le chemin est trouvé
+    nodeVisited = pyqtSignal(int)  # Signal quand un nœud est visité
+    traversalComplete = pyqtSignal()  # Signal quand le parcours est terminé
 
     def __init__(self):
         super().__init__()
@@ -57,6 +64,42 @@ class GrapheModel(QObject):
     def selected_edge(self, edge):
         self._selected_edge = edge
 
+    @property
+    def start_node(self):
+        return self._start_node
+
+    @start_node.setter
+    def start_node(self, node):
+        self._start_node = node
+        self.grapheChanged.emit(self._pos)
+
+    @property
+    def end_node(self):
+        return self._end_node
+
+    @end_node.setter
+    def end_node(self, node):
+        self._end_node = node
+        self.grapheChanged.emit(self._pos)
+
+    @property
+    def shortest_path(self):
+        return self._shortest_path
+
+    @shortest_path.setter
+    def shortest_path(self, path):
+        self._shortest_path = path
+        self.grapheChanged.emit(self._pos)
+
+    @property
+    def visited_nodes(self):
+        return self._visited_nodes
+
+    @visited_nodes.setter
+    def visited_nodes(self, nodes):
+        self._visited_nodes = nodes
+        self.grapheChanged.emit(self._pos)
+
     def edge_weight(self, edge):
         return self._graphe[edge[0]][edge[1]]['weight']
 
@@ -67,6 +110,10 @@ class GrapheModel(QObject):
         self._pos = nx.spring_layout(self._graphe, seed=42)
         self._selected_node = None
         self._selected_edge = None
+        self._start_node = None
+        self._end_node = None
+        self._shortest_path = []
+        self._visited_nodes = []
         self.grapheChanged.emit(self._pos)
 
     def delete_graph(self):
@@ -74,6 +121,10 @@ class GrapheModel(QObject):
         self._pos = nx.spring_layout(self._graphe, seed=42)
         self._selected_node = None
         self._selected_edge = None
+        self._start_node = None
+        self._end_node = None
+        self._shortest_path = []
+        self._visited_nodes = []
         self.grapheChanged.emit(self._pos)
 
     def add_node(self, position):
@@ -91,6 +142,10 @@ class GrapheModel(QObject):
                 del self._pos[node]
             if self._selected_node == node:
                 self._selected_node = None
+            if self._start_node == node:
+                self._start_node = None
+            if self._end_node == node:
+                self._end_node = None
             self.grapheChanged.emit(self._pos)
 
     def delete_edge(self, edge):
@@ -116,7 +171,6 @@ class GrapheModel(QObject):
 
     def set_edge_weight(self, edge, weight):
         node1, node2 = edge
-        # Vérifier les deux orientations possibles
         if self._graphe.has_edge(node1, node2):
             self._graphe[node1][node2]['weight'] = weight
             self.grapheChanged.emit(self._pos)
@@ -134,3 +188,31 @@ class GrapheModel(QObject):
         elif self._graphe.has_edge(node2, node1):
             return self._graphe[node2][node1]['weight']
         return None
+
+    def find_shortest_path(self):
+        """Trouve le plus court chemin entre start_node et end_node"""
+        if self._start_node is None or self._end_node is None:
+            return []
+
+        if self._start_node not in self._graphe.nodes() or self._end_node not in self._graphe.nodes():
+            return []
+
+        try:
+            # Utiliser dijkstra pour tenir compte des poids
+            path = nx.shortest_path(self._graphe, source=self._start_node,
+                                    target=self._end_node, weight='weight')
+            return path
+        except nx.NetworkXNoPath:
+            return []
+
+    def reset_path(self):
+        """Réinitialise le chemin et les nœuds de départ/arrivée"""
+        self._start_node = None
+        self._end_node = None
+        self._shortest_path = []
+        self.grapheChanged.emit(self._pos)
+
+    def reset_traversal(self):
+        """Réinitialise le parcours"""
+        self._visited_nodes = []
+        self.grapheChanged.emit(self._pos)
