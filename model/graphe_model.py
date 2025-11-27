@@ -13,7 +13,7 @@ class GrapheModel(QObject):
     _start_node = None  # Sommet de départ pour plus court chemin
     _end_node = None  # Sommet d'arrivée pour plus court chemin
     _shortest_path = []  # Stocker le plus court chemin
-    _visited_nodes = []  # Stocker les nœuds visités pendant le parcours
+    _visited_nodes = []  # Stocker les noeuds visités pendant le parcours
 
     __proba = 0.5
     __default_graphe_order = 10
@@ -22,7 +22,7 @@ class GrapheModel(QObject):
 
     grapheChanged = pyqtSignal(dict)
     pathFound = pyqtSignal(list)  # Signal quand le chemin est trouvé
-    nodeVisited = pyqtSignal(int)  # Signal quand un nœud est visité
+    nodeVisited = pyqtSignal(int)  # Signal quand un noeud est visité
     traversalComplete = pyqtSignal()  # Signal quand le parcours est terminé
 
     def __init__(self):

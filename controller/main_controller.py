@@ -3,6 +3,7 @@ from view.GrapheCanvas import GraphCanvas
 from view.MainWindow import MainWindow
 from workers import ShortestPathWorker, TraversalWorker
 
+#Je suis pas certain si mon implémentation des workers est bonne..
 
 # Contrôleur principal
 class MainController:
@@ -75,7 +76,6 @@ class MainController:
             self.__view.weightSpinBox.blockSignals(False)
 
     def apply_edge_weight(self):
-        """Applique le nouveau poids à l'arête sélectionnée"""
         if self.__canvas._selected_edge is None:
             return
 
@@ -84,7 +84,6 @@ class MainController:
         self.__canvas.draw_graphe()
 
     def toggle_path_mode(self):
-        """Active/désactive le mode de sélection pour le plus court chemin"""
         self.__path_mode = not self.__path_mode
 
         if self.__path_mode:
@@ -104,7 +103,6 @@ class MainController:
             self.__canvas.draw_graphe()
 
     def select_path_node(self, node):
-        """Gère la sélection des nœuds pour le plus court chemin"""
         if not self.__path_mode:
             return
 
@@ -129,7 +127,6 @@ class MainController:
             self.start_shortest_path_search()
 
     def start_shortest_path_search(self):
-        """Lance la recherche du plus court chemin dans un thread"""
         # Afficher la progress bar indéterminée
         self.__view.pathProgressBar.setVisible(True)
         self.__view.pathProgressBar.setRange(0, 0)  # Mode indéterminé
@@ -141,7 +138,6 @@ class MainController:
         self.__shortest_path_worker.start()
 
     def on_path_found(self, path):
-        """Appelé quand le chemin est trouvé"""
         self.__model.shortest_path = path
 
         if len(path) > 0:
@@ -157,13 +153,11 @@ class MainController:
         self.__canvas.draw_graphe()
 
     def on_path_search_finished(self):
-        """Appelé quand la recherche est terminée"""
         self.__view.pathProgressBar.setVisible(False)
         self.__path_mode = False
         self.__view.findPathButton.setText("Trouver chemin")
 
     def calculate_path_distance(self, path):
-        """Calcule la distance totale du chemin"""
         total = 0
         for i in range(len(path) - 1):
             weight = self.__model.get_edge_weight((path[i], path[i + 1]))
@@ -172,7 +166,6 @@ class MainController:
         return total
 
     def reset_path(self):
-        """Réinitialise le chemin"""
         self.__model.reset_path()
         self.__path_mode = False
         self.__view.findPathButton.setText("Trouver chemin")
@@ -181,7 +174,6 @@ class MainController:
         self.__canvas.draw_graphe()
 
     def start_traversal(self):
-        """Lance le parcours des nœuds"""
         if self.__model.graphe.number_of_nodes() == 0:
             return
 
@@ -203,17 +195,14 @@ class MainController:
         self.__traversal_worker.start()
 
     def on_node_visited(self, node):
-        """Appelé quand un nœud est visité"""
         visited = self.__model.visited_nodes.copy()
         visited.append(node)
         self.__model.visited_nodes = visited
 
     def on_traversal_progress(self, progress):
-        """Met à jour la progress bar du parcours"""
         self.__view.traversalProgressBar.setValue(progress)
 
     def on_traversal_finished(self):
-        """Appelé quand le parcours est terminé"""
         self.__view.traversalStatusLabel.setText("Parcours terminé!")
         self.__view.traversalStatusLabel.setStyleSheet("color: #4CAF50; font-weight: bold;")
 
@@ -222,7 +211,6 @@ class MainController:
         QTimer.singleShot(2000, self.hide_traversal_ui)
 
     def hide_traversal_ui(self):
-        """Cache le UI du parcours"""
         self.__view.traversalProgressBar.setVisible(False)
         self.__view.traversalStatusLabel.setText("")
         self.__model.reset_traversal()

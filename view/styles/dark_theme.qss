@@ -21,6 +21,7 @@ QFrame#graphFrame {
     background-color: #1e1e1e;
     border: 2px solid #0d7377;
     border-radius: 10px;
+    padding: 5px;
 }
 
 /* ========================================
@@ -193,7 +194,7 @@ QGroupBox {
     border-radius: 10px;
     margin-top: 16px;
     padding-top: 24px;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 12pt;
 }
 

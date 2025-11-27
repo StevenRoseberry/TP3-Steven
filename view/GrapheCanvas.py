@@ -29,6 +29,9 @@ class GraphCanvas(FigureCanvasQTAgg):
         self.setFocus()
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
+        # Ajuster les marges de la figure pour maximiser l'espace
+        self.fig.tight_layout(pad=0.1)
+
     def set_controller(self, controller):
         self.__controller = controller
 
@@ -176,9 +179,10 @@ class GraphCanvas(FigureCanvasQTAgg):
             labels = nx.get_edge_attributes(graphe, "weight")
             nx.draw_networkx_edge_labels(graphe, self._pos, edge_labels=labels, ax=self.ax)
 
-            # Zoom fixe
-            self.ax.set_xlim(-1.5, 1.5)
-            self.ax.set_ylim(-1.5, 1.5)
+            # Zoom plus large pour remplir l'espace
+            self.ax.set_xlim(-1.2, 1.2)
+            self.ax.set_ylim(-1.2, 1.2)
+            self.ax.axis('off')  # Masquer les axes pour plus d'espace
 
         except (NetworkXError, Exception) as e:
             print(f"Erreur draw: {e}")

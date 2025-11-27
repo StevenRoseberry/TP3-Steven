@@ -20,7 +20,8 @@ QMainWindow {
 QFrame#graphFrame {
     background-color: #ffffff;
     border: 2px solid #0d7377;
-    border-radius: 100px;
+    border-radius: 10px;
+    padding: 5px;
 }
 
 /* ========================================
