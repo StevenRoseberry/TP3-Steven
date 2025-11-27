@@ -190,7 +190,6 @@ class GrapheModel(QObject):
         return None
 
     def find_shortest_path(self):
-        """Trouve le plus court chemin entre start_node et end_node"""
         if self._start_node is None or self._end_node is None:
             return []
 
@@ -206,13 +205,11 @@ class GrapheModel(QObject):
             return []
 
     def reset_path(self):
-        """Réinitialise le chemin et les nœuds de départ/arrivée"""
         self._start_node = None
         self._end_node = None
         self._shortest_path = []
         self.grapheChanged.emit(self._pos)
 
     def reset_traversal(self):
-        """Réinitialise le parcours"""
         self._visited_nodes = []
         self.grapheChanged.emit(self._pos)
