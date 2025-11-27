@@ -1,67 +1,7 @@
-import time
-from PyQt6.QtCore import QThread, pyqtSignal
 from model.graphe_model import GrapheModel
 from view.GrapheCanvas import GraphCanvas
 from view.MainWindow import MainWindow
-
-
-# Worker intégré pour le plus court chemin
-class ShortestPathWorker(QThread):
-    """Worker pour calculer le plus court chemin dans un thread séparé"""
-    pathFound = pyqtSignal(list)
-    finished = pyqtSignal()
-
-    def __init__(self, model):
-        super().__init__()
-        self.model = model
-
-    def run(self):
-        # Petit délai pour voir la progress bar
-        time.sleep(0.5)
-
-        # Calcul du plus court chemin
-        path = self.model.find_shortest_path()
-
-        # Émettre le résultat
-        self.pathFound.emit(path)
-        self.finished.emit()
-
-
-# Worker intégré pour le parcours
-class TraversalWorker(QThread):
-    """Worker pour parcourir les nœuds du graphe dans un thread séparé"""
-    nodeVisited = pyqtSignal(int)
-    progressUpdated = pyqtSignal(int)
-    finished = pyqtSignal()
-
-    def __init__(self, model):
-        super().__init__()
-        self.model = model
-        self._is_running = True
-
-    def run(self):
-        nodes = list(self.model.graphe.nodes())
-        total_nodes = len(nodes)
-
-        for i, node in enumerate(nodes):
-            if not self._is_running:
-                break
-
-            # Émettre le nœud visité
-            self.nodeVisited.emit(node)
-
-            # Mettre à jour la progress bar
-            progress = int((i + 1) / total_nodes * 100)
-            self.progressUpdated.emit(progress)
-
-            # Pause d'une seconde entre chaque nœud
-            time.sleep(1)
-
-        self.finished.emit()
-
-    def stop(self):
-        """Arrête le parcours"""
-        self._is_running = False
+from workers import ShortestPathWorker, TraversalWorker
 
 
 # Contrôleur principal

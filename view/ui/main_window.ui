@@ -19,16 +19,16 @@
      <number>15</number>
     </property>
     <property name="leftMargin">
-     <number>20</number>
+     <number>10</number>  <!-- ← Change à 10 -->
     </property>
     <property name="topMargin">
-     <number>20</number>
+     <number>10</number>  <!-- ← Change à 10 -->
     </property>
     <property name="rightMargin">
-     <number>20</number>
+     <number>10</number>  <!-- ← Change à 10 -->
     </property>
     <property name="bottomMargin">
-     <number>20</number>
+     <number>10</number>  <!-- ← Change à 10 -->
     </property>
     <item>
      <widget class="QFrame" name="graphFrame">
@@ -42,22 +42,22 @@
        <number>400</number>
       </property>
       <layout class="QVBoxLayout" name="grapheLayout">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
-        <number>0</number>
-       </property>
-      </layout>
+ <property name="spacing">
+  <number>0</number>
+ </property>
+ <property name="leftMargin">
+  <number>2</number>
+ </property>
+ <property name="topMargin">
+  <number>2</number>
+ </property>
+ <property name="rightMargin">
+  <number>2</number>
+ </property>
+ <property name="bottomMargin">
+  <number>2</number>
+ </property>
+</layout>
      </widget>
     </item>
     <item>

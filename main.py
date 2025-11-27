@@ -29,6 +29,7 @@ if __name__ == "__main__":
     matplotlib.rcParams['grid.color'] = '#555555'
     matplotlib.rcParams['legend.facecolor'] = '#2b2b2b'
     matplotlib.rcParams['legend.edgecolor'] = '#e0e0e0'
+    matplotlib.rcParams['savefig.facecolor'] = '#2b2b2b'
 
     # Créer les composants
     canvas = GraphCanvas()

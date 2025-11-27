@@ -102,7 +102,7 @@ class MainWindow(QMainWindow):
         self.__update_matplotlib_colors(bg_color, text_color)
 
     def __update_matplotlib_colors(self, bg_color, text_color):
-        #Met à jour les couleurs par défaut de matplotlib
+        # Met à jour les couleurs par défaut de matplotlib
         matplotlib.rcParams['figure.facecolor'] = bg_color
         matplotlib.rcParams['axes.facecolor'] = bg_color
         matplotlib.rcParams['axes.edgecolor'] = text_color
@@ -113,6 +113,16 @@ class MainWindow(QMainWindow):
         matplotlib.rcParams['grid.color'] = '#555555' if self.__is_dark_mode else '#cccccc'
         matplotlib.rcParams['legend.facecolor'] = bg_color
         matplotlib.rcParams['legend.edgecolor'] = text_color
+        matplotlib.rcParams['savefig.facecolor'] = bg_color
+
+        # Redessiner le canvas si le controller est disponible
+        if hasattr(self, '_MainWindow__controller') and self.__controller:
+            canvas = self.__controller._MainController__canvas
+            if canvas and hasattr(canvas, 'draw_graphe'):
+                # Forcer la mise à jour des couleurs de la figure
+                canvas.fig.patch.set_facecolor(bg_color)
+                canvas.ax.set_facecolor(bg_color)
+                canvas.draw_graphe()
 
         # Redessiner le canvas si le controller est disponible
         if hasattr(self, '_MainWindow__controller') and self.__controller:
